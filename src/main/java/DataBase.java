@@ -16,7 +16,7 @@ public class DataBase {
         try {
             connection = DriverManager.getConnection(connectionString, Config.DB_USER, Config.DB_PASS);
         } catch (SQLException throwables) {
-            switch (throwables.getMessage()) {
+            switch (throwables.getMessage()) {//todo то что за хуйня?
             }
         }
         return connection;
@@ -52,6 +52,7 @@ public class DataBase {
 
     //Методы CRUD:
     //добавление пользователя в таблицу (CREATE-операция) INSERT-SQL-оператор
+    //todo addUser
     public void addDatabase(User user, String name_table) {
         String insert = "INSERT INTO " + name_table + " (id, first_name, last_name, age)  VALUES  (?,?,?,?)";
         try {
@@ -69,6 +70,7 @@ public class DataBase {
     }
 
     //чтение всех пользователей из таблицы (Read-операция) SELECT-SQL-оператор
+    //todo не select а get
     public void selectAllUsers(String name_table) throws SQLException {
         String sglSelectTasks = "select * from " + name_table + " order by id desc";
         ResultSet resultSet = null;
@@ -86,6 +88,7 @@ public class DataBase {
     }
 
     // Обновление (Редактирование) (Update-операция)
+    //todo гавно название. напиши ты ж user обновляешь, а метод хуй чего называется
     public void reUserTable(String name_table, UUID uuid, User user) throws SQLException {
         User userDo = selectUserById(name_table, uuid);
         userDo.setFirst_name(user.getFirst_name());
@@ -120,6 +123,7 @@ public class DataBase {
     }
 
     // чтение одного пользователя по id (Read-операция) SELECT-SQL-оператор
+    //todo не select а get
     public User selectUserById(String name_table, UUID uuid) throws SQLException {
         String selectId = "select * from " + name_table + " WHERE id =?";
         ResultSet resultId = null;
