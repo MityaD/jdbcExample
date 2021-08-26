@@ -14,10 +14,9 @@ public class DataBase {
         }
         String connectionString = "jdbc:postgresql://" + Config.HOST + ":" + Config.PORT + "/" + Config.DBNAME;
         try {
-            connection = DriverManager.getConnection(connectionString, Config.DB_USER, Config.DB_PASS);
+            connection = DriverManager.getConnection(connectionString, Config.DB_USER.getConfigDB(), Config.DB_PASS.getConfigDB());
         } catch (SQLException throwables) {
-            switch (throwables.getMessage()) {//todo то что за хуйня?
-            }
+             throwables.getMessage(); //todo то что за хуйня?
         }
         return connection;
     }
@@ -53,7 +52,7 @@ public class DataBase {
     //Методы CRUD:
     //добавление пользователя в таблицу (CREATE-операция) INSERT-SQL-оператор
     //todo addUser
-    public void addDatabase(User user, String name_table) {
+    public void addUser(User user, String name_table) {
         String insert = "INSERT INTO " + name_table + " (id, first_name, last_name, age)  VALUES  (?,?,?,?)";
         try {
             PreparedStatement prST = getDBConnection().prepareStatement(insert);
@@ -71,7 +70,7 @@ public class DataBase {
 
     //чтение всех пользователей из таблицы (Read-операция) SELECT-SQL-оператор
     //todo не select а get
-    public void selectAllUsers(String name_table) throws SQLException {
+    public void getAllUsers(String name_table) throws SQLException {
         String sglSelectTasks = "select * from " + name_table + " order by id desc";
         ResultSet resultSet = null;
         try {
@@ -89,12 +88,12 @@ public class DataBase {
 
     // Обновление (Редактирование) (Update-операция)
     //todo гавно название. напиши ты ж user обновляешь, а метод хуй чего называется
-    public void reUserTable(String name_table, UUID uuid, User user) throws SQLException {
-        User userDo = selectUserById(name_table, uuid);
+    public void updateUserInDB(String name_table, UUID uuid, User user) throws SQLException {
+        User userDo = getUserById(name_table, uuid);
         userDo.setFirst_name(user.getFirst_name());
         userDo.setLast_name(user.getLast_name());
         deleteUser(name_table, uuid);
-        addDatabase(userDo, "users");
+        addUser(userDo, "users");
     }
 
     //удаление всех пользователей по id (Delete-операция) DELETE-SQL-оператор
@@ -124,7 +123,7 @@ public class DataBase {
 
     // чтение одного пользователя по id (Read-операция) SELECT-SQL-оператор
     //todo не select а get
-    public User selectUserById(String name_table, UUID uuid) throws SQLException {
+    public User getUserById(String name_table, UUID uuid) throws SQLException {
         String selectId = "select * from " + name_table + " WHERE id =?";
         ResultSet resultId = null;
         User user = null;

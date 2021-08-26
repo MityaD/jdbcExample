@@ -18,18 +18,18 @@ public class MainUser {
         User user2 = new User(uuidUser2, "Alex", "Sania", 35);
         User user5 = new User(uuidUser5, "Truhanov", "Stefan", 40);
 
-        dataBase.addDatabase(user, "users"); // вызов метода добавления пользователя
-        dataBase.addDatabase(user1, "users");// в таблицу (CREATE-операция) INSERT-SQL-оператор
-        dataBase.addDatabase(user2, "users");
+        dataBase.addUser(user, "users"); // вызов метода добавления пользователя
+        dataBase.addUser(user1, "users");// в таблицу (CREATE-операция) INSERT-SQL-оператор
+        dataBase.addUser(user2, "users");
 
-        //dataBase.selectAllUsers("users"); //вызов метода чтения всех пользователей из таблицы (Read-операция) SELECT-SQL-оператор
+        //dataBase.getAllUsers("users"); //вызов метода чтения всех пользователей из таблицы (Read-операция) SELECT-SQL-оператор
 
-        //dataBase.reUserTable("users", uuidUser2, user5); // вызов метода обновления (Редактирования) (Update-операция)
+        //dataBase.updateUserInDB("users", uuidUser2, user5); // вызов метода обновления (Редактирования) (Update-операция)
 
         //dataBase.deleteAll("users"); //вызов метода удаления всех пользователей по id (Delete-операция) DELETE-SQL-оператор
 
         //dataBase.deleteUser("users", uuidUser); //вызыв метода удаления пользователя по id (Delete-операция) DELETE-SQL-оператор
 
-        //dataBase.selectUserById("users", uuidUser1); //вызов метода чтение одного пользователя по id (Read-операция) SELECT-SQL-оператор
+        //dataBase.getUserById("users", uuidUser1); //вызов метода чтение одного пользователя по id (Read-операция) SELECT-SQL-оператор
     }
 }
