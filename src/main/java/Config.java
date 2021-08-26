@@ -1,4 +1,4 @@
-public enum Config { //todo сделать enum
+public enum Config {
 
     HOST ("localhost"),
     PORT ("5432"),
@@ -21,5 +21,6 @@ public enum Config { //todo сделать enum
         return "Config{" +
                 "configDB='" + configDB + '\'' +
                 '}';
+
     }
 }

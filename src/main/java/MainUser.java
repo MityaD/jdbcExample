@@ -6,7 +6,7 @@ public class MainUser {
 
         DataBase dataBase = new DataBase();
         dataBase.dropTable("users"); // вызов метода удаления таблицы
-        dataBase.createDbUserTable("users");     //вызов метода создания таблицы
+        dataBase.createTable("users");     //вызов метода создания таблицы
 
         UUID uuidUser = UUID.randomUUID();
         UUID uuidUser1 = UUID.randomUUID();
