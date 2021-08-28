@@ -2,9 +2,6 @@ import java.sql.*;
 import java.util.UUID;
 
 public class DataBase {
-    private String nameTable;//todo а нах это поле здесь? не понимаю...
-    private String nameTableAddress;
-
     // метод подключения
     public Connection getDBConnection() {
         Connection connection = null;
@@ -22,10 +19,10 @@ public class DataBase {
         return connection;
     }
     //создание таблицы адресов
-    public void createTableAddresses(String nameTableAddress) throws SQLException {
+    public void createTableAddresses() throws SQLException {
         Connection connectionCTA = null;
         Statement statement = null;
-        String sglCodeTasks = "CREATE TABLE " + nameTableAddress + "("
+        String sglCodeTasks = "CREATE TABLE user_address ("
                 + "id VARCHAR PRIMARY KEY , "
                 + "city VARCHAR, "
                 + "street VARCHAR, "
@@ -35,7 +32,7 @@ public class DataBase {
             connectionCTA = getDBConnection();
             statement = connectionCTA.createStatement();
             statement.execute(sglCodeTasks);
-            System.out.println("Таблица \"" + nameTableAddress + "\" создана!");
+            System.out.println("Таблица user_address создана!");
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         } finally {
@@ -45,21 +42,21 @@ public class DataBase {
         }
     }
     // метод создания таблицы пользователей
-    public void createTable(String nameTable, String nameTableAddress) throws SQLException {
+    public void createTable() throws SQLException {
         Connection connection = null;
         Statement statement = null;
-        String sglCodeTasks = "CREATE TABLE " + nameTable + "("
+        String sglCodeTasks = "CREATE TABLE users("
                 + "id VARCHAR PRIMARY KEY , "
                 + "first_name VARCHAR, "
                 + "last_name VARCHAR, "
                 + "age INT, "
-                + "user_Id_For_Communication VARCHAR REFERENCES " + nameTableAddress + " (id)"
+                + "FOREIGN KEY (id) REFERENCES user_address (id) ON DELETE CASCADE"
                 + ");";
         try {
             connection = getDBConnection();
             statement = connection.createStatement();
             statement.execute(sglCodeTasks);
-            System.out.println("Таблица \"" + nameTable + "\" создана!");
+            System.out.println("Таблица users создана!");
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         } finally {
@@ -70,9 +67,9 @@ public class DataBase {
     }
     //Методы CRUD:
     //добавление пользователя в таблицу (CREATE-операция) INSERT-SQL-оператор
-    public void addUser(User user, String nameTable, Address address, String nameTableAddress) {
-        String sglCodeTasks = "INSERT INTO " + nameTable + " (id, first_name, last_name, age)  VALUES  (?,?,?,?)";
-        String sglCodeTasks2 = "INSERT INTO " + nameTableAddress + " (id, city, street, house)  VALUES  (?,?,?,?)";
+    public void addUser(User user, Address address) {
+        String sglCodeTasks = "INSERT INTO users (id, first_name, last_name, age)  VALUES  (?,?,?,?)";
+        String sglCodeTasks2 = "INSERT INTO user_address (id, city, street, house)  VALUES  (?,?,?,?)";
         try {
             PreparedStatement prST = getDBConnection().prepareStatement(sglCodeTasks);
             prST.setString(1, String.valueOf(user.getId()));
@@ -81,7 +78,7 @@ public class DataBase {
             prST.setInt(4, user.getAge());
             prST.addBatch();
             prST.executeUpdate();
-            System.out.println("Пользователь добавлен в таблицу: " + nameTable);
+            System.out.println("Пользователь добавлен в таблицу users");
             PreparedStatement prST2 = getDBConnection().prepareStatement(sglCodeTasks2);
             prST2.setString(1, String.valueOf(address.getId()));
             prST2.setString(2, address.getCity());
@@ -89,7 +86,7 @@ public class DataBase {
             prST2.setString(4, address.getHouse());
             prST2.addBatch();
             prST2.executeUpdate();
-            System.out.println("Адрес добавлен в таблицу: " + nameTableAddress);
+            System.out.println("Адрес добавлен в таблицу user_address");
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
