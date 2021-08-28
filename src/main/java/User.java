@@ -5,15 +5,24 @@ public class User {
     private String first_name;
     private String last_name;
     private int age;
-
+    private Address address;
     public User(){
     }
 
-    public User(UUID id, String first_name, String last_name, int age) {
+    public User(UUID id, String first_name, String last_name, int age, Address address) {
         this.id = id;
         this.first_name = first_name;
         this.last_name = last_name;
         this.age = age;
+        this.address = address;
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
     }
 
     public UUID getId() {
