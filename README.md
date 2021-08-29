@@ -1,1 +1,1 @@
-# Проект maven + git
+# Проект maven
