@@ -1,8 +1,13 @@
 import java.sql.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 public class DataBase {
-    // метод подключения
+
+    public Logger logger = Logger.getLogger(DataBase.class.getName());
+
     public Connection getDBConnection() {
         Connection connection = null;
         try {
@@ -18,7 +23,7 @@ public class DataBase {
         }
         return connection;
     }
-    //создание таблицы адресов
+
     public void createTableAddresses() throws SQLException {
         Connection connectionCTA = null;
         Statement statement = null;
@@ -32,7 +37,7 @@ public class DataBase {
             connectionCTA = getDBConnection();
             statement = connectionCTA.createStatement();
             statement.execute(sglCodeTasks);
-            System.out.println("Таблица user_address создана!");
+            logger.info(dataTime() + " Таблица user_address создана!");
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         } finally {
@@ -41,7 +46,7 @@ public class DataBase {
             }
         }
     }
-    // метод создания таблицы пользователей
+
     public void createTable() throws SQLException {
         Connection connection = null;
         Statement statement = null;
@@ -50,13 +55,14 @@ public class DataBase {
                 + "first_name VARCHAR, "
                 + "last_name VARCHAR, "
                 + "age INT, "
-                + "FOREIGN KEY (id) REFERENCES user_address (id) ON DELETE CASCADE"
+                + "id_address VARCHAR, "
+                + "FOREIGN KEY (id_address) REFERENCES user_address (id) ON DELETE CASCADE"
                 + ");";
         try {
             connection = getDBConnection();
             statement = connection.createStatement();
             statement.execute(sglCodeTasks);
-            System.out.println("Таблица users создана!");
+            logger.info(dataTime() +"Таблица users создана!");
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         } finally {
@@ -65,51 +71,66 @@ public class DataBase {
             }
         }
     }
-    //Методы CRUD:
-    //добавление пользователя в таблицу (CREATE-операция) INSERT-SQL-оператор
-    public void addUser(User user, Address address) {
-        String sglCodeTasks = "INSERT INTO users (id, first_name, last_name, age)  VALUES  (?,?,?,?)";
-        String sglCodeTasks2 = "INSERT INTO user_address (id, city, street, house)  VALUES  (?,?,?,?)";
+
+    public void addRecord(User user, Address address) {
+        String sqlCodeTasksAddress = "INSERT INTO user_address (id, city, street, house)  VALUES  (?,?,?,?)";
+        String sqlCodeTasksUser = "INSERT INTO users (id, first_name, last_name, age, id_address)  VALUES  (?,?,?,?,?)";
         try {
-            PreparedStatement prST = getDBConnection().prepareStatement(sglCodeTasks);
-            prST.setString(1, String.valueOf(user.getId()));
-            prST.setString(2, user.getFirst_name());
-            prST.setString(3, user.getLast_name());
-            prST.setInt(4, user.getAge());
-            prST.addBatch();
-            prST.executeUpdate();
-            System.out.println("Пользователь добавлен в таблицу users");
-            PreparedStatement prST2 = getDBConnection().prepareStatement(sglCodeTasks2);
-            prST2.setString(1, String.valueOf(address.getId()));
-            prST2.setString(2, address.getCity());
-            prST2.setString(3, address.getStreet());
-            prST2.setString(4, address.getHouse());
-            prST2.addBatch();
-            prST2.executeUpdate();
-            System.out.println("Адрес добавлен в таблицу user_address");
+            addUser(sqlCodeTasksAddress, address);
+            logger.info(dataTime() +"Адрес добавлен в таблицу user_address");
+            addAddress(sqlCodeTasksUser, user, address);
+            logger.info(dataTime() +"Пользователь добавлен в таблицу users");
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
     }
 
-    //чтение всех пользователей из таблицы (Read-операция) SELECT-SQL-оператор
-    public void getAllUsers(String nameTable) throws SQLException {
-        String sglCodeTasks = "select * from " + nameTable + " order by id desc";
-        ResultSet resultSet = null;
-        try {
-            resultSet = getDBConnection().createStatement().executeQuery(sglCodeTasks);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        while (resultSet.next()) {
-            System.out.println(resultSet.getObject("id") + " "
-                    + resultSet.getString("first_name") + " "
-                    + resultSet.getString("last_name") + " "
-                    + resultSet.getInt("age"));
-        }
+    public void addAddress(String sql, User user, Address address) throws SQLException {
+        PreparedStatement prST = getDBConnection().prepareStatement(sql);
+        prST.setString(1, String.valueOf(user.getId()));
+        prST.setString(2, user.getFirst_name());
+        prST.setString(3, user.getLast_name());
+        prST.setInt(4, user.getAge());
+        prST.setString(5, String.valueOf(address.getId()));
+        prST.addBatch();
+        prST.executeUpdate();
     }
 
-    //удаление пользователя по id (Delete-операция) DELETE-SQL-оператор
+    //
+    public void addUser(String sql, Address address) throws SQLException {
+        PreparedStatement prST2 = getDBConnection().prepareStatement(sql);
+        prST2.setString(1, String.valueOf(address.getId()));
+        prST2.setString(2, address.getCity());
+        prST2.setString(3, address.getStreet());
+        prST2.setString(4, address.getHouse());
+        prST2.addBatch();
+        prST2.executeUpdate();
+    }
+    public String getUsers(String id_address) throws SQLException {
+        String sqlCodeTasks = "SELECT * FROM users ORDER BY " + id_address + " DESC";
+        ResultSet resultSet = null;
+        resultSet = getDBConnection().createStatement().executeQuery(sqlCodeTasks);
+            return String.valueOf(resultSet);
+    }
+
+//    public void getAllUsers(String house) throws SQLException {
+//        String sglCodeTasks = "select * from user_address order by " + house + " desc";
+//        ResultSet resultSet = null;
+//        try {
+//            resultSet = getDBConnection().createStatement().executeQuery(sglCodeTasks);
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
+//        while (resultSet.next()) {
+//            System.out.println(resultSet.getObject("id") + " "
+//                    + resultSet.getString("first_name") + " "
+//                    + resultSet.getString("last_name") + " "
+//                    + resultSet.getInt("age")) + " "
+//                    + getUsers();
+//        }
+//    }
+
+    //удаление пользователя по id (Delete-операция) DELETE-SQL_INFO-оператор
     public void deleteUser(String nameTable, UUID uuidUser, String nameTableAddress, UUID uuidAdress) {
         String sglCodeTasks = "DELETE FROM " + nameTable + " WHERE id =?";
         String sglCodeTasks2 = "DELETE FROM " + nameTableAddress + " WHERE id =?";
@@ -125,7 +146,7 @@ public class DataBase {
         }
     }
 
-    // чтение одного пользователя по id (Read-операция) SELECT-SQL-оператор
+    // чтение одного пользователя по id (Read-операция) SELECT-SQL_INFO-оператор
     public User getUserById(String nameTable, UUID uuid) throws SQLException {
         String sglCodeTasks = "select * from " + nameTable + " WHERE id =?";
         ResultSet resultId = null;
@@ -147,12 +168,16 @@ public class DataBase {
         return user;
     }
 
-    //удаление таблицы полностью
     public void dropTable(String nameTable) {
         try {
             getDBConnection().createStatement().execute("DROP TABLE " + nameTable);
+            logger.info(dataTime() + "Таблица: " + nameTable + " удалена");
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public String  dataTime() {
+        return LocalDateTime.now().format(DateTimeFormatter.ofPattern("d MMMM, yyyy HH:mm:ss"));
     }
 }
