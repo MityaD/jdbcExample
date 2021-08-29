@@ -42,6 +42,6 @@ public class MainUser {
         dataBase.addRecord(user3, address3);
         dataBase.addRecord(user4, address4);
 
-        //dataBase.getAllUsers("30A");
+        dataBase.getUserByHouseNumber("201");     //выборки всех пользователей которые живут в одном доме (конкретный дом передается параметром)
     }
 }
