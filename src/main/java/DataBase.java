@@ -1,10 +1,11 @@
 import java.sql.*;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 public class DataBase {
-    private String nameTable;//todo а нах это поле здесь? не понимаю...
 
-    // метод подключения
+    Logger logger = Logger.getLogger(DataBase.class.getName());
+
     public Connection getDBConnection() {
         Connection connection = null;
         try {
@@ -21,7 +22,6 @@ public class DataBase {
         return connection;
     }
 
-    // метод создания таблицы
     public void createTable(String nameTable) throws SQLException {
         Connection connection = null;
         Statement statement = null;
@@ -36,7 +36,7 @@ public class DataBase {
             statement = connection.createStatement();
 
             statement.execute(sglCodeTasks);
-            System.out.println("Таблица \"" + nameTable + "\" создана!");
+            logger.info ("Таблица \"" + nameTable + "\" создана!");
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         } finally {
@@ -46,8 +46,6 @@ public class DataBase {
         }
     }
 
-    //Методы CRUD:
-    //добавление пользователя в таблицу (CREATE-операция) INSERT-SQL-оператор
     public void addUser(User user, String nameTable) {
         String sglCodeTasks = "INSERT INTO " + nameTable + " (id, first_name, last_name, age)  VALUES  (?,?,?,?)";
         try {
@@ -58,13 +56,12 @@ public class DataBase {
             prST.setInt(4, user.getAge());
             prST.addBatch();
             prST.executeUpdate();
-            System.out.println("Пользователь добавлен в таблицу: " + nameTable);
+            logger.info ("Пользователь добавлен в таблицу: " + nameTable);
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
     }
 
-    //чтение всех пользователей из таблицы (Read-операция) SELECT-SQL-оператор
     public void getAllUsers(String nameTable) throws SQLException {
         String sglCodeTasks = "select * from " + nameTable + " order by id desc";
         ResultSet resultSet = null;
@@ -74,16 +71,14 @@ public class DataBase {
             e.printStackTrace();
         }
         while (resultSet.next()) {
-            System.out.println(resultSet.getObject("id") + " "
+            logger.info (resultSet.getObject("id") + " "
                     + resultSet.getString("first_name") + " "
                     + resultSet.getString("last_name") + " "
                     + resultSet.getInt("age"));
         }
     }
 
-    // Обновление (Редактирование) (Update-операция)
-    //todo гавно название. просто userUpdate  id здесь не нужен ты его м юзера можешь достать
-    public void userUpdate(String nameTable, UUID uuid, User user) throws SQLException { //нужно в методе getUserById
+    public void userUpdate(String nameTable, UUID uuid, User user) throws SQLException {
         User userDouble = getUserById(nameTable, uuid);
         userDouble.setFirst_name(user.getFirst_name());
         userDouble.setLast_name(user.getLast_name());
@@ -91,20 +86,18 @@ public class DataBase {
         addUser(userDouble, "users");
     }
 
-    //удаление всех пользователей по id (Delete-операция) DELETE-SQL-оператор
     public void deleteAll(String nameTable) {
         String sglCodeTasks = "DELETE FROM " + nameTable;
         try {
             PreparedStatement prSTDelet = getDBConnection().prepareStatement(sglCodeTasks);
             prSTDelet.addBatch();
             prSTDelet.executeUpdate();
-            System.out.println("Таблица пуста");
+            logger.info ("Таблица пуста");
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    //удаление пользователя по id (Delete-операция) DELETE-SQL-оператор
     public void deleteUser(String nameTable, UUID uuid) {
         String sglCodeTasks = "DELETE FROM " + nameTable + " WHERE id =?";
         try {
@@ -116,7 +109,6 @@ public class DataBase {
         }
     }
 
-    // чтение одного пользователя по id (Read-операция) SELECT-SQL-оператор
     public User getUserById(String nameTable, UUID uuid) throws SQLException {
         String sglCodeTasks = "select * from " + nameTable + " WHERE id =?";
         ResultSet resultId = null;
@@ -137,7 +129,7 @@ public class DataBase {
         }
         return user;
     }
-            //удаление таблицы полностью
+
     public void dropTable(String nameTable) {
         try {
             getDBConnection().createStatement().execute("DROP TABLE " + nameTable);
